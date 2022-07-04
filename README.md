@@ -16,7 +16,7 @@ Get the artefact and the POM file in the *artefact* folder.
 <dependency>
     <groupId>org.melior</groupId>
     <artifactId>melior-harness-jdbc</artifactId>
-    <version>2.2</version>
+    <version>2.3</version>
 </dependency>
 ```
 
