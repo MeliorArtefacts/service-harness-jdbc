@@ -137,4 +137,4 @@ statement.setTimestamp(1, adjustTimestamp(myTimestamp, Duration.ofHours(-8)));
 ```
 
 ## References
-Refer to the [**Melior Service Harness :: Core**](https://github.com/MeliorArtefacts/service-harness-core) module for more detail on the Melior logging system.
+Refer to the [**Melior Service Harness :: Core**](https://github.com/MeliorArtefacts/service-harness-core) module for detail on the Melior logging system and available utilities.
