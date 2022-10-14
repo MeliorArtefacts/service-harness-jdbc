@@ -18,6 +18,7 @@ import org.melior.logging.core.LoggerFactory;
 import org.melior.service.core.ServiceState;
 import org.melior.service.exception.ApplicationException;
 import org.melior.util.collection.BlockingQueue;
+import org.melior.util.collection.Queue;
 import org.melior.util.number.Clamp;
 import org.melior.util.number.Counter;
 import org.melior.util.semaphore.Semaphore;
@@ -85,7 +86,7 @@ public class ConnectionPool{
 
         totalConnections = Counter.of(0);
 
-        availableConnectionQueue = new BlockingQueue<Connection>();
+        availableConnectionQueue = Queue.ofBlocking();
 
         connectionsSupply = Counter.of(0);
 
@@ -93,7 +94,7 @@ public class ConnectionPool{
 
         activeConnectionsCeiling = 0;
 
-        retireConnectionQueue = new BlockingQueue<Connection>();
+        retireConnectionQueue = Queue.ofBlocking();
 
         lastException = null;
 
@@ -296,7 +297,7 @@ public class ConnectionPool{
                         if (remainingBackoff > 0){
               logger.debug(methodName, "Backing off for ", (remainingBackoff / 1000), " seconds.");
 
-                            ThreadControl.sleep(remainingBackoff);
+                            ThreadControl.sleep(remainingBackoff, TimeUnit.MILLISECONDS);
 
               continue;
             }
@@ -370,7 +371,7 @@ public class ConnectionPool{
                     activeConnectionsCeiling = 0;
         }
 
-                ThreadControl.wait(this, dataSource.getPruneInterval());
+                ThreadControl.wait(this, dataSource.getPruneInterval(), TimeUnit.MILLISECONDS);
       }
       catch (Exception exception){
         logger.error(methodName, "Failed to prune expired connections: ", exception.getMessage(), exception);

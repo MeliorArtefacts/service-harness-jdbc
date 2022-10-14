@@ -215,6 +215,25 @@ public abstract class DataAccessObject extends ServiceComponent{
   }
 
   /**
+   * Returns the value of the specified {@code Timestamp} column in the result set as a
+   * {@code LocalDateTime}.  If the column is SQL {@code NULL}, then {@code null} is
+   * returned.
+   * @param resultSet The result set
+   * @param columnIndex The column index
+   * @return The value as a {@code LocalDateTime}, if the column is not SQL {@code NULL}, otherwise {@code null}
+   * @throws SQLException if the column index is not valid, if a database access
+   * error occurs or this method is called on a closed result set
+   */
+  protected LocalDateTime getTimestampAsLocal(
+    final ResultSet resultSet,
+    final int columnIndex) throws SQLException{
+        Timestamp value;
+
+        value = resultSet.getTimestamp(columnIndex);
+    return (resultSet.wasNull() == true) ? null : value.toLocalDateTime();
+  }
+
+  /**
    * Returns the value of the specified {@code Timestamp} column in the statement as a
    * {@code String}.  If the column is SQL {@code NULL}, then the default value is
    * returned instead.
@@ -236,6 +255,25 @@ public abstract class DataAccessObject extends ServiceComponent{
   }
 
   /**
+   * Returns the value of the specified {@code Timestamp} column in the statement as a
+   * {@code LocalDateTime}.  If the column is SQL {@code NULL}, then {@code null} is
+   * returned.
+   * @param statement The statement
+   * @param columnIndex The column index
+   * @return The value as a {@code String}, if the column is not SQL {@code NULL}, otherwise {@code null}
+   * @throws SQLException if the column index is not valid, if a database access
+   * error occurs or this method is called on a closed statement
+   */
+  protected LocalDateTime getTimestampAsLocal(
+    final CallableStatement statement,
+    final int columnIndex) throws SQLException{
+        Timestamp value;
+
+        value = statement.getTimestamp(columnIndex);
+    return (statement.wasNull() == true) ? null : value.toLocalDateTime();
+  }
+
+  /**
    * Sets the specified {@code Timestamp} column in the statement.
    * If the value is null, the column is set to SQL {@code NULL}.
    * @param statement The statement
@@ -254,6 +292,29 @@ public abstract class DataAccessObject extends ServiceComponent{
     }
     else{
       statement.setTimestamp(columnIndex, value);
+    }
+
+  }
+
+  /**
+   * Sets the specified {@code LocalDateTime} as a {@code Timestamp} column in the statement.
+   * If the value is null, the column is set to SQL {@code NULL}.
+   * @param statement The statement
+   * @param columnIndex The column index
+   * @param value The value to set
+   * @throws SQLException if the column index is not valid, if a database access
+   * error occurs or this method is called on a closed statement
+   */
+  protected void setTimestamp(
+    final PreparedStatement statement,
+    final int columnIndex,
+    final LocalDateTime value) throws SQLException{
+
+        if (value == null){
+      statement.setNull(columnIndex, Types.TIMESTAMP);
+    }
+    else{
+      statement.setTimestamp(columnIndex, Timestamp.valueOf(value));
     }
 
   }
@@ -388,6 +449,25 @@ public abstract class DataAccessObject extends ServiceComponent{
   }
 
   /**
+   * Returns the value of the specified {@code Date} column in the result set as a
+   * {@code LocalDate}.  If the column is SQL {@code NULL}, then {@code null} is
+   * returned.
+   * @param resultSet The result set
+   * @param columnIndex The column index
+   * @return The value as a {@code String}, if the column is not SQL {@code NULL}, otherwise {@code null}
+   * @throws SQLException if the column index is not valid, if a database access
+   * error occurs or this method is called on a closed result set
+   */
+  protected LocalDate getDateAsLocal(
+    final ResultSet resultSet,
+    final int columnIndex) throws SQLException{
+        Date value;
+
+        value = resultSet.getDate(columnIndex);
+    return (resultSet.wasNull() == true) ? null : value.toLocalDate();
+  }
+
+  /**
    * Returns the value of the specified {@code Date} column in the statement as a
    * {@code String}.  If the column is SQL {@code NULL}, then the default value is
    * returned instead.
@@ -409,6 +489,25 @@ public abstract class DataAccessObject extends ServiceComponent{
   }
 
   /**
+   * Returns the value of the specified {@code Date} column in the statement as a
+   * {@code String}.  If the column is SQL {@code NULL}, then {@code null} is
+   * returned instead.
+   * @param statement The statement
+   * @param columnIndex The column index
+   * @return The value as a {@code String}, if the column is not SQL {@code NULL}, otherwise {@code null}
+   * @throws SQLException if the column index is not valid, if a database access
+   * error occurs or this method is called on a closed statement
+   */
+  protected LocalDate getDateAsLocal(
+    final CallableStatement statement,
+    final int columnIndex) throws SQLException{
+        Date value;
+
+        value = statement.getDate(columnIndex);
+    return (statement.wasNull() == true) ? null : value.toLocalDate();
+  }
+
+  /**
    * Sets the specified {@code Date} column in the statement.
    * If the value is null, the column is set to SQL {@code NULL}.
    * @param statement The statement
@@ -427,6 +526,29 @@ public abstract class DataAccessObject extends ServiceComponent{
     }
     else{
       statement.setDate(columnIndex, value);
+    }
+
+  }
+
+  /**
+   * Sets the specified {@code LocalDate} as a {@code Date} column in the statement.
+   * If the value is null, the column is set to SQL {@code NULL}.
+   * @param statement The statement
+   * @param columnIndex The column index
+   * @param value The value to set
+   * @throws SQLException if the column index is not valid, if a database access
+   * error occurs or this method is called on a closed statement
+   */
+  protected void setDate(
+    final PreparedStatement statement,
+    final int columnIndex,
+    final LocalDate value) throws SQLException{
+
+        if (value == null){
+      statement.setNull(columnIndex, Types.DATE);
+    }
+    else{
+      statement.setDate(columnIndex, Date.valueOf(value));
     }
 
   }
@@ -481,7 +603,6 @@ public abstract class DataAccessObject extends ServiceComponent{
    * {@code Integer}.  If the column is SQL {@code NULL}, then null is returned instead.
    * @param resultSet The result set
    * @param columnIndex The column index
-   * @param defaultValue The default value
    * @return The value as an {@code Integer}, if the column is not SQL {@code NULL}, otherwise null
    * @throws SQLException if the column index is not valid, if a database access
    * error occurs or this method is called on a closed result set
@@ -541,7 +662,6 @@ public abstract class DataAccessObject extends ServiceComponent{
    * {@code Integer}.  If the column is SQL {@code NULL}, then null is returned instead.
    * @param statement The statement
    * @param columnIndex The column index
-   * @param defaultValue The default value
    * @return The value as an {@code Integer}, if the column is not SQL {@code NULL}, otherwise null
    * @throws SQLException if the column index is not valid, if a database access
    * error occurs or this method is called on a closed statement
@@ -647,7 +767,6 @@ public abstract class DataAccessObject extends ServiceComponent{
    * {@code Long}.  If the column is SQL {@code NULL}, then null is returned instead.
    * @param resultSet The result set
    * @param columnIndex The column index
-   * @param defaultValue The default value
    * @return The value as a {@code Long}, if the column is not SQL {@code NULL}, otherwise null
    * @throws SQLException if the column index is not valid, if a database access
    * error occurs or this method is called on a closed result set
@@ -707,7 +826,6 @@ public abstract class DataAccessObject extends ServiceComponent{
    * {@code Long}.  If the column is SQL {@code NULL}, then null is returned instead.
    * @param statement The statement
    * @param columnIndex The column index
-   * @param defaultValue The default value
    * @return The value as a {@code Long}, if the column is not SQL {@code NULL}, otherwise null
    * @throws SQLException if the column index is not valid, if a database access
    * error occurs or this method is called on a closed statement
@@ -813,7 +931,6 @@ public abstract class DataAccessObject extends ServiceComponent{
    * {@code Float}.  If the column is SQL {@code NULL}, then null is returned instead.
    * @param resultSet The result set
    * @param columnIndex The column index
-   * @param defaultValue The default value
    * @return The value as a {@code Float}, if the column is not SQL {@code NULL}, otherwise null
    * @throws SQLException if the column index is not valid, if a database access
    * error occurs or this method is called on a closed result set
@@ -873,7 +990,6 @@ public abstract class DataAccessObject extends ServiceComponent{
    * {@code Float}.  If the column is SQL {@code NULL}, then null is returned instead.
    * @param statement The statement
    * @param columnIndex The column index
-   * @param defaultValue The default value
    * @return The value as a {@code Float}, if the column is not SQL {@code NULL}, otherwise null
    * @throws SQLException if the column index is not valid, if a database access
    * error occurs or this method is called on a closed statement
@@ -979,7 +1095,6 @@ public abstract class DataAccessObject extends ServiceComponent{
    * {@code Double}.  If the column is SQL {@code NULL}, then null is returned instead.
    * @param resultSet The result set
    * @param columnIndex The column index
-   * @param defaultValue The default value
    * @return The value as a {@code Double}, if the column is not SQL {@code NULL}, otherwise null
    * @throws SQLException if the column index is not valid, if a database access
    * error occurs or this method is called on a closed result set
@@ -1039,7 +1154,6 @@ public abstract class DataAccessObject extends ServiceComponent{
    * {@code Double}.  If the column is SQL {@code NULL}, then null is returned instead.
    * @param statement The statement
    * @param columnIndex The column index
-   * @param defaultValue The default value
    * @return The value as a {@code Double}, if the column is not SQL {@code NULL}, otherwise null
    * @throws SQLException if the column index is not valid, if a database access
    * error occurs or this method is called on a closed statement
@@ -1208,7 +1322,7 @@ public abstract class DataAccessObject extends ServiceComponent{
   /**
    * Returns the value of the specified {@code String} column in the statement.
    * If the column is SQL {@code NULL}, then the default value is returned instead.
-   * @param resultSet The result set
+   * @param statement The statement
    * @param columnIndex The column index
    * @param defaultValue The default value
    * @return The value, if the column is not SQL {@code NULL}, otherwise the default value

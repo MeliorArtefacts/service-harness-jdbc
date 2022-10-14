@@ -47,7 +47,7 @@ public class DataSource extends DataSourceConfig implements javax.sql.DataSource
 
   /**
    * Initialize data source.
-   * @throws Exception when unable to initialize the data source
+   * @throws SQLException when unable to initialize the data source
    */
   public void initialize() throws SQLException{
 

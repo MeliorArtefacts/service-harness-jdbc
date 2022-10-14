@@ -18,7 +18,7 @@ import org.melior.service.exception.ExceptionType;
  * wherever {@code ApplicationException} is handled.
  * @author Melior
  * @since 2.2
- * @see {@code ApplicationException}
+ * @see ApplicationException
  */
 public class DataAccessException extends ApplicationException{
 
