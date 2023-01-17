@@ -1,10 +1,10 @@
-/* __  __    _ _      
-  |  \/  |  | (_)       
+/* __  __      _ _            
+  |  \/  |    | (_)           
   | \  / | ___| |_  ___  _ __ 
   | |\/| |/ _ \ | |/ _ \| '__|
   | |  | |  __/ | | (_) | |   
   |_|  |_|\___|_|_|\___/|_|   
-    Service Harness
+        Service Harness
 */
 package org.melior.jdbc.datasource;
 import java.io.PrintWriter;
@@ -29,7 +29,8 @@ import org.melior.service.exception.ApplicationException;
  * @author Melior
  * @since 2.2
  */
-public class DataSource extends DataSourceConfig implements javax.sql.DataSource{
+public class DataSource extends DataSourceConfig implements javax.sql.DataSource {
+
     protected Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private SessionController sessionController;
@@ -38,187 +39,195 @@ public class DataSource extends DataSourceConfig implements javax.sql.DataSource
 
     private ConnectionPool connectionPool;
 
-  /**
-   * Constructor.
-   */
-  public DataSource(){
+    /**
+     * Constructor.
+     */
+    public DataSource() {
+
         super();
-  }
-
-  /**
-   * Initialize data source.
-   * @throws SQLException when unable to initialize the data source
-   */
-  public void initialize() throws SQLException{
-
-        if (connectionPool != null){
-      return;
     }
 
-    try{
+    /**
+     * Initialize data source.
+     * @throws SQLException when unable to initialize the data source
+     */
+    public void initialize() throws SQLException {
+
+        if (connectionPool != null) {
+            return;
+        }
+
+        try {
+
             connectionPool = new ConnectionPool(this);
-    }
-    catch (Exception exception){
-      throw new SQLException("Failed to create connection pool: " + exception.getMessage(), SQLState.CONNECTION_FAILURE.value(), exception);
+        }
+        catch (Exception exception) {
+            throw new SQLException("Failed to create connection pool: " + exception.getMessage(), SQLState.CONNECTION_FAILURE.value(), exception);
+        }
+
     }
 
-  }
+    /**
+     * Set driver class name.
+     * @param driverClassName The driver class name
+     */
+    public void setDriverClassName(
+        final String driverClassName) {
 
-  /**
-   * Set driver class name.
-   * @param driverClassName The driver class name
-   */
-  public void setDriverClassName(
-    final String driverClassName){
         super.setDriverClassName(driverClassName);
 
         registerDriver(driverClassName);
-  }
-
-  /**
-   * Set minimum number of connections.
-   * @param minimumConnections The minimum number of connections
-   * @throws ApplicationException when the minimum number of connections is invalid
-   */
-  public void setMinimumConnections(
-    final int minimumConnections) throws ApplicationException{
-        super.setMinimumConnections(minimumConnections);
-
-        if (connectionPool != null){
-            connectionPool.resizePool();
     }
 
-  }
+    /**
+     * Set minimum number of connections.
+     * @param minimumConnections The minimum number of connections
+     * @throws ApplicationException when the minimum number of connections is invalid
+     */
+    public void setMinimumConnections(
+        final int minimumConnections) throws ApplicationException {
 
-  /**
-   * Get session controller.
-   * @return The session controller
-   */
-  public SessionController getSessionController(){
-    return sessionController;
-  }
+        super.setMinimumConnections(minimumConnections);
 
-  /**
-   * Get statement enhancer.
-   * @return The statement enhancer
-   */
-  public StatementEnhancer getStatementEnhancer(){
-    return statementEnhancer;
-  }
+        if (connectionPool != null) {
 
-  /**
-   * Get connection to database.
-   * @return The connection
-   * @throws SQLException when unable to get a connection
-   */
-  public Connection getConnection() throws SQLException{
+            connectionPool.resizePool();
+        }
+
+    }
+
+    /**
+     * Get session controller.
+     * @return The session controller
+     */
+    public SessionController getSessionController() {
+        return sessionController;
+    }
+
+    /**
+     * Get statement enhancer.
+     * @return The statement enhancer
+     */
+    public StatementEnhancer getStatementEnhancer() {
+        return statementEnhancer;
+    }
+
+    /**
+     * Get connection to database.
+     * @return The connection
+     * @throws SQLException when unable to get a connection
+     */
+    public Connection getConnection() throws SQLException {
+
         String methodName = "getConnection";
-    Connection connection;
+        Connection connection;
 
         initialize();
 
-    logger.debug(methodName, "Connection pool [", connectionPool.getPoolId(), "]: total=", connectionPool.getTotalConnections(),
-      ", active=", connectionPool.getActiveConnections(), ", deficit=", connectionPool.getConnectionDeficit(),
-      ", churn=", connectionPool.getChurnedConnections());
+        logger.debug(methodName, "Connection pool [", connectionPool.getPoolId(), "]: total=", connectionPool.getTotalConnections(),
+            ", active=", connectionPool.getActiveConnections(), ", deficit=", connectionPool.getConnectionDeficit(),
+            ", churn=", connectionPool.getChurnedConnections());
 
         connection = connectionPool.getConnection();
 
-    return connection;
-  }
-
-  /**
-   * Get connection.
-   * @param username The user name
-   * @param password The password
-   * @return The connection
-   * @throws SQLException when unable to get a connection
-   */
-  public Connection getConnection(
-    final String username,
-    final String password) throws SQLException{
-    throw new SQLFeatureNotSupportedException();
-  }
-
-  /**
-   * Get parent logger.
-   * @return The parent logger
-   * @throws SQLFeatureNotSupportedException when unable to get the parent logger
-   */
-  public java.util.logging.Logger getParentLogger() throws SQLFeatureNotSupportedException{
-    throw new SQLFeatureNotSupportedException();
-  }
-
-  /**
-   * Get log writer.
-   * @return The log writer
-   * @throws SQLException when unable to get the log writer
-   */
-  public PrintWriter getLogWriter() throws SQLException{
-    throw new SQLFeatureNotSupportedException();
-  }
-
-  /**
-   * Set log writer.
-   * @param out The log writer
-   * @throws SQLException when unable to set the log writer
-   */
-  public void setLogWriter(
-    final PrintWriter out) throws SQLException{
-    throw new SQLFeatureNotSupportedException();
-  }
-
-  /**
-   * Get object that implements given interface.
-   * @param iface The interface
-   * @return The object that implements the interface
-   * @throws SQLException when unable to obtain an object that implements the interface
-   */
-  @SuppressWarnings("unchecked")
-  public <T> T unwrap(Class<T> iface) throws SQLException{
-
-        if (iface.isInstance(this) == true){
-      return (T) this;
+        return connection;
     }
 
-    throw new SQLFeatureNotSupportedException();
-  }
-
-  /**
-   * Indicate whether object implements given interface.
-   * @param iface The interface
-   * @return true if the object implements the given interface, false otherwise
-   * @throws SQLException when unable to get the implementation indicator
-   */
-  public boolean isWrapperFor(Class<?> iface) throws SQLException{
-
-        if (iface.isInstance(this) == true){
-      return true;
+    /**
+     * Get connection.
+     * @param username The user name
+     * @param password The password
+     * @return The connection
+     * @throws SQLException when unable to get a connection
+     */
+    public Connection getConnection(
+        final String username,
+        final String password) throws SQLException {
+        throw new SQLFeatureNotSupportedException();
     }
 
-    throw new SQLFeatureNotSupportedException();
-  }
+    /**
+     * Get parent logger.
+     * @return The parent logger
+     * @throws SQLFeatureNotSupportedException when unable to get the parent logger
+     */
+    public java.util.logging.Logger getParentLogger() throws SQLFeatureNotSupportedException {
+        throw new SQLFeatureNotSupportedException();
+    }
 
-  /**
-   * Register driver.
-   * @param driverClassName The driver class name
-   */
-  private void registerDriver(
-    final String driverClassName){
+    /**
+     * Get log writer.
+     * @return The log writer
+     * @throws SQLException when unable to get the log writer
+     */
+    public PrintWriter getLogWriter() throws SQLException {
+        throw new SQLFeatureNotSupportedException();
+    }
+
+    /**
+     * Set log writer.
+     * @param out The log writer
+     * @throws SQLException when unable to set the log writer
+     */
+    public void setLogWriter(
+        final PrintWriter out) throws SQLException {
+        throw new SQLFeatureNotSupportedException();
+    }
+
+    /**
+     * Get object that implements given interface.
+     * @param iface The interface
+     * @return The object that implements the interface
+     * @throws SQLException when unable to obtain an object that implements the interface
+     */
+    @SuppressWarnings("unchecked")
+    public <T> T unwrap(Class<T> iface) throws SQLException {
+
+        if (iface.isInstance(this) == true) {
+            return (T) this;
+        }
+
+        throw new SQLFeatureNotSupportedException();
+    }
+
+    /**
+     * Indicate whether object implements given interface.
+     * @param iface The interface
+     * @return true if the object implements the given interface, false otherwise
+     * @throws SQLException when unable to get the implementation indicator
+     */
+    public boolean isWrapperFor(Class<?> iface) throws SQLException {
+
+        if (iface.isInstance(this) == true) {
+            return true;
+        }
+
+        throw new SQLFeatureNotSupportedException();
+    }
+
+    /**
+     * Register driver.
+     * @param driverClassName The driver class name
+     */
+    private void registerDriver(
+        final String driverClassName) {
+
         String methodName = "registerDriver";
-    Driver driver;
+        Driver driver;
 
         super.setDriverClassName(driverClassName);
 
-    try{
+        try {
+
             driver = (Driver) Class.forName(driverClassName).newInstance();
-      DriverManager.registerDriver(driver);
+            DriverManager.registerDriver(driver);
 
-      logger.debug(methodName, "Registered driver: ", driver.getClass().getName(), " [", driver.getMajorVersion(), ".", driver.getMinorVersion(), "]");
-    }
-    catch (Exception exception){
-      throw new RuntimeException("Failed to register driver: " + exception.getMessage(), exception);
-    }
+            logger.debug(methodName, "Registered driver: ", driver.getClass().getName(), " [", driver.getMajorVersion(), ".", driver.getMinorVersion(), "]");
+        }
+        catch (Exception exception) {
+            throw new RuntimeException("Failed to register driver: " + exception.getMessage(), exception);
+        }
 
-  }
+    }
 
 }

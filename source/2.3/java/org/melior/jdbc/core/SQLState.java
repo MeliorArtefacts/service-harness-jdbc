@@ -1,10 +1,10 @@
-/* __  __    _ _      
-  |  \/  |  | (_)       
+/* __  __      _ _            
+  |  \/  |    | (_)           
   | \  / | ___| |_  ___  _ __ 
   | |\/| |/ _ \ | |/ _ \| '__|
   | |  | |  __/ | | (_) | |   
   |_|  |_|\___|_|_|\___/|_|   
-    Service Harness
+        Service Harness
 */
 package org.melior.jdbc.core;
 
@@ -14,28 +14,29 @@ package org.melior.jdbc.core;
  * @author Melior
  * @since 2.2
  */
-public enum SQLState{
-  DYNAMIC_SQL_ERROR ("07000"),
-  CONNECTION_INVALID ("08003"),
-  CONNECTION_FAILURE ("08006");
+public enum SQLState {
+    DYNAMIC_SQL_ERROR ("07000"),
+    CONNECTION_INVALID ("08003"),
+    CONNECTION_FAILURE ("08006");
 
     private String value;
 
-  /**
-   * Constructor.
-   * @param value The value
-   */
-  SQLState(
-    final String value){
-        this.value = value;
-  }
+    /**
+     * Constructor.
+     * @param value The value
+     */
+    SQLState(
+        final String value) {
 
-  /**
-   * Get value.
-   * @return The value
-   */
-  public String value(){
-    return value;
-  }
+        this.value = value;
+    }
+
+    /**
+     * Get value.
+     * @return The value
+     */
+    public String value() {
+        return value;
+    }
 
 }

@@ -1,10 +1,10 @@
-/* __  __    _ _      
-  |  \/  |  | (_)       
+/* __  __      _ _            
+  |  \/  |    | (_)           
   | \  / | ___| |_  ___  _ __ 
   | |\/| |/ _ \ | |/ _ \| '__|
   | |  | |  __/ | | (_) | |   
   |_|  |_|\___|_|_|\___/|_|   
-    Service Harness
+        Service Harness
 */
 package org.melior.jdbc.core;
 import java.io.IOException;
@@ -40,7 +40,8 @@ import org.melior.util.time.Timer;
  * @author Melior
  * @since 2.2
  */
-public class Connection implements InvocationHandler{
+public class Connection implements InvocationHandler {
+
     protected Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private DataSource dataSource;
@@ -73,15 +74,16 @@ public class Connection implements InvocationHandler{
 
     private StringBuilder arguments;
 
-  /**
-   * Constructor.
-   * @param dataSource The data source
-   * @param connectionPool The connection pool
-   * @throws ApplicationException if an error occurs during the construction
-   */
-  public Connection(
-    final DataSource dataSource,
-    final ConnectionPool connectionPool) throws ApplicationException{
+    /**
+     * Constructor.
+     * @param dataSource The data source
+     * @param connectionPool The connection pool
+     * @throws ApplicationException if an error occurs during the construction
+     */
+    public Connection(
+        final DataSource dataSource,
+        final ConnectionPool connectionPool) throws ApplicationException {
+
         super();
 
         this.dataSource = dataSource;
@@ -108,183 +110,197 @@ public class Connection implements InvocationHandler{
 
         delegate = null;
 
-    try{
+        try {
+
             proxy = (java.sql.Connection) Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(),
-        new Class[] {java.sql.Connection.class}, this);
-    }
-    catch (Exception exception){
-      throw new ApplicationException(ExceptionType.LOCAL_APPLICATION, "Failed to create connection proxy: " + exception.getMessage(), exception);
-    }
+                new Class[] {java.sql.Connection.class}, this);
+        }
+        catch (Exception exception) {
+            throw new ApplicationException(ExceptionType.LOCAL_APPLICATION, "Failed to create connection proxy: " + exception.getMessage(), exception);
+        }
 
         arguments = null;
-  }
+    }
 
-  /**
-   * Get connection descriptor.
-   * @return The connection descriptor
-   */
-  public String getConnectionDescriptor(){
-    return connectionDescriptor;
-  }
+    /**
+     * Get connection descriptor.
+     * @return The connection descriptor
+     */
+    public String getConnectionDescriptor() {
+        return connectionDescriptor;
+    }
 
-  /**
-   * Get proxy.
-   * @return The proxy
-   */
-  public java.sql.Connection getProxy(){
-    return proxy;
-  }
+    /**
+     * Get proxy.
+     * @return The proxy
+     */
+    public java.sql.Connection getProxy() {
+        return proxy;
+    }
 
-  /**
-   * Allocate connection to specified thread.
-   * @param thread The thread that will own the connection
-   */
-  public void allocate(
-    final Thread thread){
+    /**
+     * Allocate connection to specified thread.
+     * @param thread The thread that will own the connection
+     */
+    public void allocate(
+        final Thread thread) {
+
         ownerThread = thread;
 
         lastException = null;
-  }
-
-  /**
-   * Release connection from specified thread.
-   * @param thread The thread that owns the connection
-   * @throws SQLException when the connection has already been released
-   */
-  public void release(
-    final Thread thread) throws SQLException{
-
-        if ((ownerThread == null) || (ownerThread != thread)){
-      throw new SQLException("Connection has already been released.  Consider passing connection between methods.", SQLState.CONNECTION_INVALID.value());
     }
 
+    /**
+     * Release connection from specified thread.
+     * @param thread The thread that owns the connection
+     * @throws SQLException when the connection has already been released
+     */
+    public void release(
+        final Thread thread) throws SQLException {
+
+        if ((ownerThread == null) || (ownerThread != thread)) {
+            throw new SQLException("Connection has already been released.  Consider passing connection between methods.", SQLState.CONNECTION_INVALID.value());
+        }
+
         ownerThread = null;
-  }
+    }
 
-  /**
-   * Check whether connection is still valid.
-   * @param fullValidation The full validation indicator
-   * @return true if the connection is still valid, false otherwise
-   */
-  public boolean isValid(
-    final boolean fullValidation){
+    /**
+     * Check whether connection is still valid.
+     * @param fullValidation The full validation indicator
+     * @return true if the connection is still valid, false otherwise
+     */
+    public boolean isValid(
+        final boolean fullValidation) {
+
         String methodName = "isValid";
-    ExceptionType exceptionType;
+        ExceptionType exceptionType;
 
-        if (lastException != null){
+        if (lastException != null) {
+
             exceptionType = SQLExceptionMapper.map(lastException);
 
             if ((exceptionType == ExceptionType.DATAACCESS_COMMUNICATION)
-        || (exceptionType == ExceptionType.DATAACCESS_SYSTEM)){
-        return false;
-      }
+                || (exceptionType == ExceptionType.DATAACCESS_SYSTEM)) {
+                return false;
+            }
 
-    }
+        }
 
-        if ((fullValidation == true) && (validationSupported == true)){
-      logger.debug(methodName, "Connection [", connectionDescriptor, "] is being validated.");
+        if ((fullValidation == true) && (validationSupported == true)) {
+            logger.debug(methodName, "Connection [", connectionDescriptor, "] is being validated.");
 
-      try{
+            try {
+
                 return delegate.isValid(dataSource.getValidationTimeout());
-      }
-      catch (Exception exception){
-        return false;
-      }
+            }
+            catch (Exception exception) {
+                return false;
+            }
 
+        }
+
+        return true;
     }
 
-    return true;
-  }
+    /**
+     * Check whether connection has reached end-of-life
+     * @return true if the connection has reached end-of-life, false otherwise
+     */
+    public boolean isEndOfLife() {
+        return (dataSource.getMaximumLifetime() > 0)
+            && (lifetimeTimer.elapsedTime() > dataSource.getMaximumLifetime());
+    }
 
-  /**
-   * Check whether connection has reached end-of-life
-   * @return true if the connection has reached end-of-life, false otherwise
-   */
-  public boolean isEndOfLife(){
-    return (dataSource.getMaximumLifetime() > 0)
-      && (lifetimeTimer.elapsedTime() > dataSource.getMaximumLifetime());
-  }
+    /**
+     * Open connection.
+     * @throws SQLException when the open attempt fails
+     */
+    public void open() throws SQLException {
 
-  /**
-   * Open connection.
-   * @throws SQLException when the open attempt fails
-   */
-  public void open() throws SQLException{
         String methodName = "open";
-    SessionController sessionController;
-    Timer timer;
-    long duration;
+        SessionController sessionController;
+        Timer timer;
+        long duration;
 
         timer = Timer.ofNanos().start();
 
-    try{
-      logger.debug(methodName, "Connection [", connectionDescriptor, "] attempting to open.  URL = ", dataSource.getUrl());
+        try {
+            logger.debug(methodName, "Connection [", connectionDescriptor, "] attempting to open.  URL = ", dataSource.getUrl());
 
             DriverManager.setLoginTimeout(dataSource.getConnectionTimeout());
-      delegate = DriverManager.getConnection(dataSource.getUrl(), dataSource.getConnectionProperties());
+            delegate = DriverManager.getConnection(dataSource.getUrl(), dataSource.getConnectionProperties());
 
-      try{
+            try {
+
                 configureConnection(dataSource, delegate);
 
                 sessionController = dataSource.getSessionController();
 
-                if (sessionController != null){
+                if (sessionController != null) {
+
                     sessionData = sessionController.prepareSession(dataSource, delegate);
 
                     timeDelta.setDelta(sessionData.getTimeDelta());
 
                     setConnectionDescriptor();
-        }
+                }
 
-      }
-      catch (Exception exception){
+            }
+            catch (Exception exception) {
 
-        try{
+                try {
+
                     delegate.close();
-        }
-        catch (Exception exception2){
+                }
+                catch (Exception exception2) {
+
                     sessionData = null;
 
                     delegate = null;
+                }
+
+                throw exception;
+            }
+
+            duration = timer.elapsedTime(TimeUnit.MILLISECONDS);
+
+            logger.debug(methodName, "Connection [", connectionDescriptor, "] opened successfully.  Duration = ", duration, " ms.");
         }
-
-        throw exception;
-      }
+        catch (Exception exception) {
 
             duration = timer.elapsedTime(TimeUnit.MILLISECONDS);
 
-      logger.debug(methodName, "Connection [", connectionDescriptor, "] opened successfully.  Duration = ", duration, " ms.");
-    }
-    catch (Exception exception){
-            duration = timer.elapsedTime(TimeUnit.MILLISECONDS);
-
-      logger.error(methodName, "Connection [", connectionDescriptor, "] open attempt failed.  Duration = ", duration, " ms.");
+            logger.error(methodName, "Connection [", connectionDescriptor, "] open attempt failed.  Duration = ", duration, " ms.");
 
             captureException(exception);
 
-      throw exception;
+            throw exception;
+        }
+
     }
 
-  }
+    /**
+     * Close connection.
+     */
+    public void close() {
 
-  /**
-   * Close connection.
-   */
-  public void close(){
         String methodName = "close";
 
-    try{
+        try {
 
-            if ((delegate != null) && (delegate.isClosed() == false)){
+            if ((delegate != null) && (delegate.isClosed() == false)) {
+
                 delegate.close();
-      }
+            }
 
-      logger.debug(methodName, "Connection [", connectionDescriptor, "] closed successfully.");
-    }
-    catch (Exception exception){
-      logger.error(methodName, "Connection [", connectionDescriptor, "] close attempt failed.", exception);
-    }
-    finally{
+            logger.debug(methodName, "Connection [", connectionDescriptor, "] closed successfully.");
+        }
+        catch (Exception exception) {
+            logger.error(methodName, "Connection [", connectionDescriptor, "] close attempt failed.", exception);
+        }
+        finally {
+
             sessionData = null;
 
             statementCache.clear();
@@ -292,207 +308,234 @@ public class Connection implements InvocationHandler{
             delegate = null;
 
             setConnectionDescriptor();
+        }
+
     }
 
-  }
+    /**
+     * Configure connection.
+     * @param dataSource The data source
+     * @param connection The connection
+     */
+    private void configureConnection(
+        final DataSource dataSource,
+        final java.sql.Connection connection) {
 
-  /**
-   * Configure connection.
-   * @param dataSource The data source
-   * @param connection The connection
-   */
-  private void configureConnection(
-    final DataSource dataSource,
-    final java.sql.Connection connection){
         String methodName = "configureConnection";
 
-        if (dataSource.getCatalog() != null){
+        if (dataSource.getCatalog() != null) {
 
-      try{
+            try {
+
                 delegate.setCatalog(dataSource.getCatalog());
-      }
-      catch (SQLException exception){
-        logger.warn(methodName, "Driver does not support setting catalog.");
-      }
+            }
+            catch (SQLException exception) {
+                logger.warn(methodName, "Driver does not support setting catalog.");
+            }
 
-    }
+        }
 
-        if (dataSource.getSchema() != null){
+        if (dataSource.getSchema() != null) {
 
-      try{
+            try {
+
                 delegate.setSchema(dataSource.getSchema());
-      }
-      catch (SQLException exception){
-        logger.warn(methodName, "Driver does not support setting schema.");
-      }
+            }
+            catch (SQLException exception) {
+                logger.warn(methodName, "Driver does not support setting schema.");
+            }
 
-    }
+        }
 
-    try{
+        try {
+
             delegate.setReadOnly(dataSource.isReadOnly());
-    }
-    catch (SQLException exception){
-      logger.warn(methodName, "Driver does not support setting read-only mode.");
-    }
+        }
+        catch (SQLException exception) {
+            logger.warn(methodName, "Driver does not support setting read-only mode.");
+        }
 
-        if (dataSource.getTransactionIsolation() != null){
+        if (dataSource.getTransactionIsolation() != null) {
 
-      try{
+            try {
+
                 delegate.setTransactionIsolation(dataSource.getTransactionIsolation().value());
-      }
-      catch (SQLException exception){
-        logger.warn(methodName, "Driver does not support setting transaction isolation.");
-      }
+            }
+            catch (SQLException exception) {
+                logger.warn(methodName, "Driver does not support setting transaction isolation.");
+            }
 
-    }
+        }
 
-    try{
+        try {
+
             delegate.setAutoCommit(dataSource.isAutoCommit());
-    }
-    catch (SQLException exception){
-      logger.warn(methodName, "Driver does not support setting auto-commit mode.");
-    }
+        }
+        catch (SQLException exception) {
+            logger.warn(methodName, "Driver does not support setting auto-commit mode.");
+        }
 
-        if (ServiceContext.getServiceName() != null){
+        if (ServiceContext.getServiceName() != null) {
 
-      try{
+            try {
+
                 delegate.setClientInfo("ApplicationName", ServiceContext.getServiceName());
-      }
-      catch (SQLException exception){
+            }
+            catch (SQLException exception) {
 
-        try{
+                try {
+
                     delegate.setClientInfo("OCSID.CLIENTID", ServiceContext.getServiceName());
+                }
+                catch (SQLException exception2) {
+                    logger.warn(methodName, "Driver does not support setting client info.");
+                }
+
+            }
+
         }
-        catch (SQLException exception2){
-          logger.warn(methodName, "Driver does not support setting client info.");
-        }
 
-      }
+        try {
 
-    }
-
-    try{
             delegate.isValid(dataSource.getValidationTimeout());
 
             validationSupported = true;
-    }
-    catch (SQLException exception){
-      logger.warn(methodName, "Driver does not support connection validation.");
+        }
+        catch (SQLException exception) {
+            logger.warn(methodName, "Driver does not support connection validation.");
 
             validationSupported = false;
+        }
+
     }
 
-  }
+    /**
+     * Build connection descriptor.
+     */
+    private void setConnectionDescriptor() {
 
-  /**
-   * Build connection descriptor.
-   */
-  private void setConnectionDescriptor(){
         connectionDescriptor = "id=" + connectionId + ((sessionData == null) ? ""
-      : ", session=" + sessionData.getSessionId() + ", delta=" + timeDelta.getDelta() + " ms.");
-  }
+            : ", session=" + sessionData.getSessionId() + ", delta=" + timeDelta.getDelta() + " ms.");
+    }
 
-  /**
-   * Indicate whether transaction commit is pending.
-   * @param commitPending true if a transaction commit is pending, false otherwise
-   */
-  public void setCommitPending(
-    final boolean commitPending){
-    this.commitPending = commitPending;
-  }
+    /**
+     * Indicate whether transaction commit is pending.
+     * @param commitPending true if a transaction commit is pending, false otherwise
+     */
+    public void setCommitPending(
+        final boolean commitPending) {
+        this.commitPending = commitPending;
+    }
 
-  /**
-   * Capture last exception.
-   * @param exception The last exception
-   */
-  void captureException(
-    final Throwable exception){
+    /**
+     * Capture last exception.
+     * @param exception The last exception
+     */
+    void captureException(
+        final Throwable exception) {
+
         lastException = (exception instanceof SQLException) ? (SQLException) exception : (exception instanceof IOException) ?
-      new SQLException(exception.getMessage(), SQLState.CONNECTION_FAILURE.value(), exception) :
-      new SQLException(exception.getMessage(), SQLState.DYNAMIC_SQL_ERROR.value(), exception);
-  }
+            new SQLException(exception.getMessage(), SQLState.CONNECTION_FAILURE.value(), exception) :
+            new SQLException(exception.getMessage(), SQLState.DYNAMIC_SQL_ERROR.value(), exception);
+    }
 
-  /**
-   * Handle proxy invocation.
-   * @param object The object on which the method was invoked
-   * @param method The method to invoke
-   * @param args The arguments to invoke with
-   * @return The result of the invocation
-   * @throws Throwable when the invocation fails
-   */
-  public Object invoke(
-    final Object object,
-    final Method method,
-    final Object[] args) throws Throwable{
+    /**
+     * Handle proxy invocation.
+     * @param object The object on which the method was invoked
+     * @param method The method to invoke
+     * @param args The arguments to invoke with
+     * @return The result of the invocation
+     * @throws Throwable when the invocation fails
+     */
+    public Object invoke(
+        final Object object,
+        final Method method,
+        final Object[] args) throws Throwable {
+
         String methodName;
-    Class[] methodParameterTypes;
-    Statement statement;
-    Object invocationResult;
-    Method rollbackMethod;
+        Class[] methodParameterTypes;
+        Statement statement;
+        Object invocationResult;
+        Method rollbackMethod;
 
         methodName = method.getName();
 
         logArguments(methodName, args);
 
-        if ((methodName.equals("prepareStatement") == true) || (methodName.equals("prepareCall") == true)){
+        if ((methodName.equals("prepareStatement") == true) || (methodName.equals("prepareCall") == true)) {
+
             methodParameterTypes = method.getParameterTypes();
 
             if ((statementCache.getCapacity() > 0) && (methodParameterTypes.length > 0)
-        && (methodParameterTypes[0] == String.class)){
+                && (methodParameterTypes[0] == String.class)) {
+
                 statementCache.setCapacity(dataSource.getStatementCacheSize());
 
                 statement = statementCache.get(args[0]);
 
-                if (statement != null){
+                if (statement != null) {
+
                     invocationResult = statement.getProxy();
 
-          logger.debug(methodName, "Connection [", connectionDescriptor, "] using cached statement.");
-        }
-        else{
+                    logger.debug(methodName, "Connection [", connectionDescriptor, "] using cached statement.");
+                }
+                else {
+
                     invocationResult = invokeMeasured(method, methodName, args, "statement prepared successfully", "statement prepare failed");
 
                     statement = new Statement(dataSource, this, statementCache, (java.sql.Statement) invocationResult, (String) args[0]);
 
                     invocationResult = statement.getProxy();
-        }
+                }
 
-      }
-      else{
+            }
+            else {
+
                 invocationResult = invokeMeasured(method, methodName, args, "statement prepared successfully", "statement prepare failed");
 
                 statement = new Statement(dataSource, this, null, (java.sql.Statement) invocationResult, null);
 
                 invocationResult = statement.getProxy();
-      }
+            }
 
-    }
-        else if (methodName.equals("createStatement") == true){
+        }
+
+        else if (methodName.equals("createStatement") == true) {
+
             invocationResult = invokeMeasured(method, methodName, args, "statement created successfully", "statement create failed");
 
             statement = new Statement(dataSource, this, null, (java.sql.Statement) invocationResult, null);
 
             invocationResult = statement.getProxy();
-    }
-        else if (methodName.equals("getMetaData") == true){
+        }
+
+        else if (methodName.equals("getMetaData") == true) {
+
             invocationResult = invokeMeasured(method, methodName, args, "metadata retrieved successfully", "metadata retrieval failed");
 
             commitPending = false;
-    }
-        else if (methodName.equals("commit") == true){
+        }
+
+        else if (methodName.equals("commit") == true) {
+
             invocationResult = invokeMeasured(method, methodName, args, "transaction committed successfully", "transaction commit failed");
 
             commitPending = false;
-    }
-        else if (methodName.equals("rollback") == true){
+        }
+
+        else if (methodName.equals("rollback") == true) {
+
             invocationResult = invokeMeasured(method, methodName, args, "transaction rolled back successfully", "transaction rollback failed");
 
             commitPending = false;
-    }
-        else if (methodName.equals("close") == true){
+        }
 
-      try{
+        else if (methodName.equals("close") == true) {
 
-                if (commitPending == true){
+            try {
+
+                if (commitPending == true) {
+
                     rollbackMethod = delegate.getClass().getMethod("rollback", new Class[0]);
 
                     invocationResult = invokeMeasured(rollbackMethod, rollbackMethod.getName(), new Object[0], "transaction rolled back successfully", "transaction rollback failed");
@@ -500,39 +543,42 @@ public class Connection implements InvocationHandler{
                     commitPending = false;
 
                     throw new SQLException("Executed forced rollback because transaction was left uncommitted.");
-        }
+                }
 
-      }
-      finally{
+            }
+            finally {
 
-        try{
+                try {
+
                     delegate.clearWarnings();
-        }
-        catch (Exception exception){
-        }
+                }
+                catch (Exception exception) {
+                }
 
                 connectionPool.releaseConnection(this);
-      }
+            }
 
             invocationResult = null;
-    }
-    else{
+        }
+        else {
+
             invocationResult = invoke(method, args);
+        }
+
+        return invocationResult;
     }
 
-    return invocationResult;
-  }
+    /**
+     * Log method arguments.
+     * @param methodName The method name
+     * @param methodArgs The method arguments
+     */
+    private void logArguments(
+        final String methodName,
+        final Object[] methodArgs) {
 
-  /**
-   * Log method arguments.
-   * @param methodName The method name
-   * @param methodArgs The method arguments
-   */
-  private void logArguments(
-    final String methodName,
-    final Object[] methodArgs){
+        if ((dataSource.isLogArguments() == true) && (methodArgs != null)) {
 
-        if ((dataSource.isLogArguments() == true) && (methodArgs != null)){
             arguments = (arguments == null) ? new StringBuilder() : arguments;
 
             arguments.append("{").append(StringUtil.join(methodArgs, "}, {")).append("}");
@@ -540,88 +586,96 @@ public class Connection implements InvocationHandler{
             logger.debug(methodName, "arguments = ", arguments.toString());
 
             arguments.delete(0, arguments.length());
+        }
+
     }
 
-  }
+    /**
+     * Handle proxy invocation.
+     * @param method The method to invoke
+     * @param methodArgs The arguments to invoke with
+     * @return The result of the invocation
+     * @throws Throwable when the invocation fails
+     */
+    private Object invoke(
+        final Method method,
+        final Object[] methodArgs) throws Throwable {
 
-  /**
-   * Handle proxy invocation.
-   * @param method The method to invoke
-   * @param methodArgs The arguments to invoke with
-   * @return The result of the invocation
-   * @throws Throwable when the invocation fails
-   */
-  private Object invoke(
-    final Method method,
-    final Object[] methodArgs) throws Throwable{
         Object invocationResult;
 
-    try{
+        try {
+
             invocationResult = method.invoke(delegate, methodArgs);
-    }
-    catch (InvocationTargetException exception){
+        }
+        catch (InvocationTargetException exception) {
+
             captureException(exception.getCause());
 
-      throw exception.getCause();
-    }
-    catch (Throwable exception){
+            throw exception.getCause();
+        }
+        catch (Throwable exception) {
+
             captureException(exception);
 
-      throw exception;
+            throw exception;
+        }
+
+        return invocationResult;
     }
 
-    return invocationResult;
-  }
+    /**
+     * Handle proxy invocation.
+     * @param method The method to invoke
+     * @param methodName The method name
+     * @param methodArgs The arguments to invoke with
+     * @param successMessage The message to log on success
+     * @param failureMessage The message to log on failure
+     * @return The result of the invocation
+     * @throws Throwable when the invocation fails
+     */
+    private Object invokeMeasured(
+        final Method method,
+        final String methodName,
+        final Object[] methodArgs,
+        final String successMessage,
+        final String failureMessage) throws Throwable {
 
-  /**
-   * Handle proxy invocation.
-   * @param method The method to invoke
-   * @param methodName The method name
-   * @param methodArgs The arguments to invoke with
-   * @param successMessage The message to log on success
-   * @param failureMessage The message to log on failure
-   * @return The result of the invocation
-   * @throws Throwable when the invocation fails
-   */
-  private Object invokeMeasured(
-    final Method method,
-    final String methodName,
-    final Object[] methodArgs,
-    final String successMessage,
-    final String failureMessage) throws Throwable{
         Timer timer;
-    Object invocationResult;
-    long duration;
+        Object invocationResult;
+        long duration;
 
         timer = Timer.ofNanos().start();
 
-    try{
+        try {
+
             invocationResult = method.invoke(delegate, methodArgs);
 
             duration = timer.elapsedTime(TimeUnit.MILLISECONDS);
 
-      logger.debug(methodName, "Connection [", connectionDescriptor, "] ", successMessage, ".  Duration = ", duration, " ms.");
-    }
-    catch (InvocationTargetException exception){
+            logger.debug(methodName, "Connection [", connectionDescriptor, "] ", successMessage, ".  Duration = ", duration, " ms.");
+        }
+        catch (InvocationTargetException exception) {
+
             duration = timer.elapsedTime(TimeUnit.MILLISECONDS);
 
-      logger.error(methodName, "Connection [", connectionDescriptor, "] ", failureMessage, ".  Duration = ", duration, " ms.");
+            logger.error(methodName, "Connection [", connectionDescriptor, "] ", failureMessage, ".  Duration = ", duration, " ms.");
 
             captureException(exception.getCause());
 
-      throw exception.getCause();
-    }
-    catch (Throwable exception){
+            throw exception.getCause();
+        }
+        catch (Throwable exception) {
+
             duration = timer.elapsedTime(TimeUnit.MILLISECONDS);
 
-      logger.error(methodName, "Connection [", connectionDescriptor, "] ", failureMessage, ".  Duration = ", duration, " ms.");
+            logger.error(methodName, "Connection [", connectionDescriptor, "] ", failureMessage, ".  Duration = ", duration, " ms.");
 
             captureException(exception);
 
-      throw exception;
-    }
+            throw exception;
+        }
 
-    return invocationResult;
-  }
+        return invocationResult;
+    }
 
 }

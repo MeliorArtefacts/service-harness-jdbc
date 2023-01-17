@@ -1,10 +1,10 @@
-/* __  __    _ _      
-  |  \/  |  | (_)       
+/* __  __      _ _            
+  |  \/  |    | (_)           
   | \  / | ___| |_  ___  _ __ 
   | |\/| |/ _ \ | |/ _ \| '__|
   | |  | |  __/ | | (_) | |   
   |_|  |_|\___|_|_|\___/|_|   
-    Service Harness
+        Service Harness
 */
 package org.melior.jdbc.session;
 import java.sql.Connection;
@@ -19,17 +19,17 @@ import javax.sql.DataSource;
  * @author Melior
  * @since 2.2
  */
-public interface SessionController{
+public interface SessionController {
 
-  /**
-   * Prepare session for use.
-   * @param connection The database connection
-   * @param dataSource The data source
-   * @return The session data
-   * @throws SQLException when unable to retrieve the session data
-   */
-  public SessionData prepareSession(
-    final DataSource dataSource,
-    final Connection connection) throws SQLException;
+    /**
+     * Prepare session for use.
+     * @param connection The database connection
+     * @param dataSource The data source
+     * @return The session data
+     * @throws SQLException when unable to retrieve the session data
+     */
+    public SessionData prepareSession(
+        final DataSource dataSource,
+        final Connection connection) throws SQLException;
 
 }

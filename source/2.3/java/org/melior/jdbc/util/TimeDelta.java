@@ -1,10 +1,10 @@
-/* __  __    _ _      
-  |  \/  |  | (_)       
+/* __  __      _ _            
+  |  \/  |    | (_)           
   | \  / | ___| |_  ___  _ __ 
   | |\/| |/ _ \ | |/ _ \| '__|
   | |  | |  __/ | | (_) | |   
   |_|  |_|\___|_|_|\___/|_|   
-    Service Harness
+        Service Harness
 */
 package org.melior.jdbc.util;
 
@@ -14,36 +14,39 @@ package org.melior.jdbc.util;
  * @author Melior
  * @since 2.2
  */
-public class TimeDelta{
+public class TimeDelta {
+
     private long delta;
 
-  /**
-   * Constructor.
-   */
-  public TimeDelta(){
+    /**
+     * Constructor.
+     */
+    public TimeDelta() {
+
         super();
 
         delta = 0;
-  }
+    }
 
-  /**
-   * Get time delta.
-   * @return The time delta
-   */
-  public long getDelta(){
-    return delta;
-  }
+    /**
+     * Get time delta.
+     * @return The time delta
+     */
+    public long getDelta() {
+        return delta;
+    }
 
-  /**
-   * Update time delta.
-   * @param delta The time delta
-   * @return The new time delta
-   */
-  public synchronized long setDelta(
-    final long delta){
+    /**
+     * Update time delta.
+     * @param delta The time delta
+     * @return The new time delta
+     */
+    public synchronized long setDelta(
+        final long delta) {
+
         this.delta = (this.delta == 0) ? delta : (this.delta + delta) / 2;
 
-    return this.delta;
-  }
+        return this.delta;
+    }
 
 }
