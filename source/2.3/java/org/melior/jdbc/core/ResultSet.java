@@ -53,7 +53,7 @@ public class ResultSet implements InvocationHandler {
     /**
      * Set result set.
      * @param resultSet The result set
-     * @throws Exception when unable to create the proxy
+     * @throws Exception if unable to create the proxy
      */
     void setResultSet(
         final java.sql.ResultSet resultSet) throws Exception {
@@ -85,7 +85,7 @@ public class ResultSet implements InvocationHandler {
      * @param method The method that is to be invoked
      * @param args The arguments to invoke the method with
      * @return The result of the invocation
-     * @throws Throwable when the invocation fails
+     * @throws Throwable if the invocation fails
      */
     public Object invoke(
         final Object object,
@@ -119,7 +119,7 @@ public class ResultSet implements InvocationHandler {
      * @param method The method to invoke
      * @param methodArgs The arguments to invoke with
      * @return The result of the invocation
-     * @throws Throwable when the invocation fails
+     * @throws Throwable if the invocation fails
      */
     private Object invoke(
         final Method method,

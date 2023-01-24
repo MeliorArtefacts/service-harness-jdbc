@@ -69,7 +69,7 @@ public abstract class DataAccessObject extends ServiceComponent {
      * Returns the first generated numeric key from the statement.
      * @param statement The statement
      * @return The generated key
-     * @throws SQLException if no generated keys are available, or when the generated key is not numeric
+     * @throws SQLException if no generated keys are available, or if the generated key is not numeric
      */
     protected long getFirstGeneratedKey(
         final PreparedStatement statement) throws SQLException {
@@ -80,7 +80,7 @@ public abstract class DataAccessObject extends ServiceComponent {
      * Returns the generated numeric keys from the statement.
      * @param statement The statement
      * @return The generated keys
-     * @throws SQLException if no generated keys are available, or when a generated key is not numeric
+     * @throws SQLException if no generated keys are available, or if a generated key is not numeric
      */
     protected long[] getGeneratedKeys(
         final PreparedStatement statement) throws SQLException {
@@ -118,7 +118,7 @@ public abstract class DataAccessObject extends ServiceComponent {
      * Parse timestamp from string.
      * @param string The string to parse
      * @return The timestamp
-     * @throws Exception when unable to parse the input string
+     * @throws Exception if unable to parse the input string
      */
     protected Timestamp parseTimestamp(
         final String string) throws Exception {
@@ -135,7 +135,7 @@ public abstract class DataAccessObject extends ServiceComponent {
      * @param string The string to parse
      * @param customFormat The custom format
      * @return The timestamp
-     * @throws Exception when unable to parse the input string
+     * @throws Exception if unable to parse the input string
      */
     protected Timestamp parseTimestamp(
         final String string,
@@ -359,7 +359,7 @@ public abstract class DataAccessObject extends ServiceComponent {
      * Parse date from string.
      * @param string The string to parse
      * @return The date
-     * @throws Exception when unable to parse the string
+     * @throws Exception if unable to parse the string
      */
     protected Date parseDate(
         final String string) throws Exception {
@@ -376,7 +376,7 @@ public abstract class DataAccessObject extends ServiceComponent {
      * @param string The string to parse
      * @param customFormat The custom format
      * @return The date
-     * @throws Exception when unable to parse the string
+     * @throws Exception if unable to parse the string
      */
     protected Date parseDate(
         final String string,

@@ -160,7 +160,7 @@ public class ConnectionPool {
     /**
      * Get connection to database.
      * @return The connection
-     * @throws SQLException when unable to get a connection
+     * @throws SQLException if unable to get a connection
      */
     public java.sql.Connection getConnection() throws SQLException {
 
@@ -254,7 +254,7 @@ public class ConnectionPool {
     /**
      * Release connection into connection pool.
      * @param connection The connection to release
-     * @throws SQLException when unable to release the connection
+     * @throws SQLException if unable to release the connection
      */
     public void releaseConnection(
         final Connection connection) throws SQLException {

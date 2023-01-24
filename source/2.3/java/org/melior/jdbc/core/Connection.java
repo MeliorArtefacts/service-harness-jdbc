@@ -153,7 +153,7 @@ public class Connection implements InvocationHandler {
     /**
      * Release connection from specified thread.
      * @param thread The thread that owns the connection
-     * @throws SQLException when the connection has already been released
+     * @throws SQLException if the connection has already been released
      */
     public void release(
         final Thread thread) throws SQLException {
@@ -214,7 +214,7 @@ public class Connection implements InvocationHandler {
 
     /**
      * Open connection.
-     * @throws SQLException when the open attempt fails
+     * @throws SQLException if the open attempt fails
      */
     public void open() throws SQLException {
 
@@ -445,7 +445,7 @@ public class Connection implements InvocationHandler {
      * @param method The method to invoke
      * @param args The arguments to invoke with
      * @return The result of the invocation
-     * @throws Throwable when the invocation fails
+     * @throws Throwable if the invocation fails
      */
     public Object invoke(
         final Object object,
@@ -595,7 +595,7 @@ public class Connection implements InvocationHandler {
      * @param method The method to invoke
      * @param methodArgs The arguments to invoke with
      * @return The result of the invocation
-     * @throws Throwable when the invocation fails
+     * @throws Throwable if the invocation fails
      */
     private Object invoke(
         final Method method,
@@ -631,7 +631,7 @@ public class Connection implements InvocationHandler {
      * @param successMessage The message to log on success
      * @param failureMessage The message to log on failure
      * @return The result of the invocation
-     * @throws Throwable when the invocation fails
+     * @throws Throwable if the invocation fails
      */
     private Object invokeMeasured(
         final Method method,
