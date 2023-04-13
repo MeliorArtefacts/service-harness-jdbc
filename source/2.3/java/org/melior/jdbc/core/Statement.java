@@ -174,8 +174,7 @@ public class Statement implements InvocationHandler {
 
             if (invocationResult instanceof java.sql.ResultSet) {
 
-                resultSet = new ResultSet(connection);
-                resultSet.setResultSet((java.sql.ResultSet) invocationResult);
+                resultSet = new ResultSet(connection, (java.sql.ResultSet) invocationResult);
 
                 invocationResult = resultSet.getProxy();
             }

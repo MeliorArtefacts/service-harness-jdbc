@@ -15,6 +15,7 @@ import java.util.concurrent.TimeUnit;
 import org.melior.logging.core.Logger;
 import org.melior.logging.core.LoggerFactory;
 import org.melior.service.exception.ApplicationException;
+import org.melior.service.exception.ExceptionType;
 import org.melior.util.time.Timer;
 
 /**
@@ -38,25 +39,16 @@ public class ResultSet implements InvocationHandler {
     /**
      * Constructor.
      * @param connection The connection
+     * @param resultSet The result set
      * @throws ApplicationException if an error occurs during the construction
      */
     public ResultSet(
-        final Connection connection) throws ApplicationException {
+        final Connection connection,
+        final java.sql.ResultSet resultSet) throws ApplicationException {
 
         super();
 
         this.connection = connection;
-
-        timer = Timer.ofNanos().start();
-    }
-
-    /**
-     * Set result set.
-     * @param resultSet The result set
-     * @throws Exception if unable to create the proxy
-     */
-    void setResultSet(
-        final java.sql.ResultSet resultSet) throws Exception {
 
         this.delegate = resultSet;
 
@@ -66,9 +58,10 @@ public class ResultSet implements InvocationHandler {
                 new Class[] {java.sql.ResultSet.class}, this);
         }
         catch (Exception exception) {
-            throw new Exception("Failed to create result set proxy: " + exception.getMessage(), exception);
+            throw new ApplicationException(ExceptionType.LOCAL_APPLICATION, "Failed to create result set proxy: " + exception.getMessage(), exception);
         }
 
+        timer = Timer.ofNanos().start();
     }
 
     /**

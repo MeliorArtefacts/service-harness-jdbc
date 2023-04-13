@@ -56,6 +56,8 @@ public class Connection implements InvocationHandler {
 
     private TimeDelta timeDelta;
 
+    private DatabaseMetaData metadata;
+
     private LRUCache<Object, Statement> statementCache;
 
     private String connectionDescriptor;
@@ -511,7 +513,24 @@ public class Connection implements InvocationHandler {
 
         else if (methodName.equals("getMetaData") == true) {
 
-            invocationResult = invokeMeasured(method, methodName, args, "metadata retrieved successfully", "metadata retrieval failed");
+            if (dataSource.isCacheMetadata() == true) {
+
+                if (metadata != null) {
+                    logger.debug(methodName, "Connection [", connectionDescriptor, "] using cached metadata.");
+                }
+                else {
+
+                    invocationResult = invokeMeasured(method, methodName, args, "metadata retrieved successfully", "metadata retrieval failed");
+
+                    metadata = new DatabaseMetaData(this, (java.sql.DatabaseMetaData) invocationResult);
+                }
+
+                invocationResult = metadata.getProxy();
+            }
+            else {
+
+                invocationResult = invokeMeasured(method, methodName, args, "metadata retrieved successfully", "metadata retrieval failed");
+            }
 
             commitPending = false;
         }

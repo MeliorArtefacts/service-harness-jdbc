@@ -63,6 +63,8 @@ public class DataSourceConfig {
 
     private int pruneInterval = 60 * 1000;
 
+    private boolean cacheMetadata = false;
+
     private int statementCacheSize = 100;
 
     private boolean logArguments = false;
@@ -494,6 +496,23 @@ public class DataSourceConfig {
     public void setPruneInterval(
         final int pruneInterval) {
         this.pruneInterval = Clamp.clampInt(pruneInterval * 1000, 0, Integer.MAX_VALUE);
+    }
+
+    /**
+     * Get cache metadata indicator.
+     * @return The cache metadata indicator
+     */
+    public boolean isCacheMetadata() {
+        return cacheMetadata;
+    }
+
+    /**
+     * Set cache metadata indicator.
+     * @param cacheMetadata The cache metadata indicator
+     */
+    public void setCacheMetadata(
+        final boolean cacheMetadata) {
+        this.cacheMetadata = cacheMetadata;
     }
 
     /**
